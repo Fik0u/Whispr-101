@@ -56,7 +56,7 @@ Dark mode.
 4. Stack technique
 Frontend :
 
-Next.js
+React JS
 
 Tailwind CSS
 
