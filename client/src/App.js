@@ -7,6 +7,8 @@ import Error from './pages/Error';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { currentUser } from './JS/actions/authAction';
+import Profile from './pages/Profile';
+import NavBar from './components/NavBar';
 
 function App() {
 
@@ -20,12 +22,13 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Whispr Live Chat App</h1>
+      <NavBar />
 
       <Routes>
         <Route path = '/' element = {<Home />} />
         <Route path = '/register' element = {<Register />} />
         <Route path = '/login' element = {<Login />} />
+        <Route path = '/profile' element = {<Profile />} />
         <Route path = '/*' element = {<Error />} />
       </Routes>
     </div>

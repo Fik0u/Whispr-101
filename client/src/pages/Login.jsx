@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from "react-router-dom";
 import { login } from '../JS/actions/authAction';
 
 const Login = () => {
@@ -10,13 +11,14 @@ const Login = () => {
     })
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value })
     };
     const handleLogin = (e) => {
         e.preventDefault();
-        dispatch(login(user))
+        dispatch(login(user, navigate))
     };
 
   return (

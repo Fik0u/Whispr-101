@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from "react-redux";
 import { register } from '../JS/actions/authAction';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
 
@@ -11,13 +12,15 @@ const Register = () => {
   });
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
    const handleChange = (e) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value })
   }
   
   const handleRegister = (e) => {
     e.preventDefault();
-    dispatch(register(newUser));
+    dispatch(register(newUser, navigate));
   }
 
   return (
