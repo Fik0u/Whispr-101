@@ -10,10 +10,6 @@ const NavBar = () => {
     const isAuth = useSelector(state => state.authReducer.isAuth);
     const user = useSelector(state => state.authReducer.user);
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate('/')
-    };
 
   return (
     <nav style={styles.nav}>
@@ -29,7 +25,7 @@ const NavBar = () => {
                 <>
             <span style={styles.username}> Hi, {user.username}</span>
             <Link to = '/profile' style={styles.link} >Profile</Link>
-            <button onClick={handleLogout} style={styles.logoutBtn} >Logout</button>
+            <button onClick={() => dispatch(logout(navigate))} style={styles.logoutBtn} >Logout</button>
                 </>
             )}
         </div>
