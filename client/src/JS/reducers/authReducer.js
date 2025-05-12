@@ -18,7 +18,9 @@ const authReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case LOAD_AUTH: return { ...state, isLoad: true };
 
-        case SUCCESS_AUTH: return { ...state, isLoad: false, user: payload, isAuth: true, success: payload.success };
+        case SUCCESS_AUTH: 
+        localStorage.setItem('token', payload.token)
+        return { ...state, isLoad: false, user: payload.user, isAuth: true, success: payload.success };
 
         case FAIL_AUTH: return { ...state, isLoad: false, errors: payload };
 
