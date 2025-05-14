@@ -25,6 +25,10 @@ exports.getMessages = async (req, res) => {
 
 exports.createMessage = async (req, res) => {
     const { senderId, receiverId, text } = req.body;
+    if (!senderId || !receiverId || !text) {
+        return res.status(400).json({ msg: "Sender, receiver, and text are required." });
+    }
+    
     try {
         const message = new Message({ sender: senderId, receiver: receiverId, text });
 
