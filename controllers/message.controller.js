@@ -7,14 +7,18 @@ exports.getMessages = async (req, res) => {
     try {
         const messages = await Message.find({
             $or: [
-                { senderId: userId, receiverId: otherUserId },
-                { senderId: otherUserId, receiverId: userId }
+                { sender: userId, receiver: otherUserId },
+                { sender: otherUserId, receiver: userId }
             ]
-        }).sort({ timestamp: 1 });
+        }).sort({ timestamp: 1 })
+        .populate([
+            { path: 'sender', select: 'username avatar' },
+            { path: 'receiver', select: 'username avatar' }]);
 
         res.status(200).json(messages)
 
     } catch (error) {
+        console.error(error)
         res.status(400).json({ msg: "Couldn't get messages", error })
     }
 };
@@ -22,13 +26,20 @@ exports.getMessages = async (req, res) => {
 exports.createMessage = async (req, res) => {
     const { senderId, receiverId, text } = req.body;
     try {
-        const message = new Message({ senderId, receiverId, text });
+        const message = new Message({ sender: senderId, receiver: receiverId, text });
 
         const savedMessage = await message.save();
 
-        res.status(200).json(savedMessage)
+        const populatedMessage = await savedMessage
+        .populate([
+            { path: 'sender', select: 'username avatar' },
+            { path: 'receiver', select: 'username avatar' }
+        ])
+
+        res.status(200).json(populatedMessage)
 
     } catch (error) {
+        console.error(error)
         res.status(400).json({ msg: "Error while sending message", error })
     }
 };
