@@ -30,6 +30,8 @@ connectDB();
 // Routes 
 app.use('/api/auth', require('./routes/auth.routes'));
 
+app.use('/api/messages', require('./routes/message.route'));
+
 
 
 // Port 
