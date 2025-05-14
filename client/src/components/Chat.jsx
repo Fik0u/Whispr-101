@@ -10,7 +10,10 @@ const Chat = ({ currentUser }) => {
 
     useEffect(() => {
         if (currentUser) {
-            socket.emit('addUser', currentUser._id);
+            socket.emit('addUser', { 
+                userId: currentUser._id,
+                username: currentUser.username
+            });
         };
         socket.on('getUsers', (users) => {
             setOnlineUsers(users)
@@ -42,7 +45,7 @@ const Chat = ({ currentUser }) => {
         <h3>Online Users</h3>
         {onlineUsers.map((user) => (
             <div key={`${user.userId}-${user.socketId}`} onClick={() => setReceiverId(user.userId)}>
-                {user.userId} 
+                {user.username} 
                 {user.userId === receiverId && '✅'}
             </div>
         ))}
@@ -51,7 +54,10 @@ const Chat = ({ currentUser }) => {
         <h3>Messages</h3>
         {messages.map((msg, index) => (
             <div key={index}>
-                <strong>{msg.senderId === currentUser._id ? 'You' : msg.senderId}: </strong>
+                <strong>
+                    {msg.senderId === currentUser._id 
+                        ? 'You' 
+                        : (onlineUsers.find(u => u.userId === msg.senderId)?.username || msg.senderId)}: </strong>
                 {msg.text}
             </div>
         ))}

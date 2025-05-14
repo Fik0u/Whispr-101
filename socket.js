@@ -1,8 +1,8 @@
 let onlineUsers = [];
 
-const addUser = (userId, socketId) => {
+const addUser = (userId, username, socketId) => {
     if (!onlineUsers.some(user => user.userId === userId)) {
-        onlineUsers.push({ userId, socketId })
+        onlineUsers.push({ userId, username, socketId })
     }
 };
 
@@ -18,8 +18,8 @@ module.exports = (io) => {
     io.on('connection', (socket) => {
         console.log('🟢 New user connected :', socket.id);
 
-        socket.on('addUser', (userId) => {
-            addUser(userId, socket.id);
+        socket.on('addUser', ({ userId, username }) => {
+            addUser(userId, username, socket.id);
             io.emit('getUsers', onlineUsers)
         });
 
