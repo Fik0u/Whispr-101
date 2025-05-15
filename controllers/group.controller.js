@@ -1,0 +1,56 @@
+const Group = require("../model/Group");
+
+
+// Create new group
+exports.newGroup = async (req, res) => {
+    const { name, description, adminId, members } = req.body;
+    if (!name || ! adminId) {
+        return res.status(400).json({ msg: 'Name & Admin are required' })
+    }
+    try {
+        let membersList = members || [];
+        if (!membersList.includes(adminId)) {
+            memebersList.push(adminId)
+        }
+
+        const newGroup = new Group({
+            name, description, admin: adminId, members: membersList
+        });
+
+        const savedGroup = await newGroup.save();
+        res.status(201).json(savedGroup);
+    } catch (error) {
+        res.status(400).json({ msg: 'Error creating group', error })
+    }
+};
+
+// Add member to the group
+exports.addMember = async (req, res) => {
+    const { groupId } = req.params;
+    const { userId } = req.body;
+    if (!userId) {
+        return res.status(400).json({ msg: 'User is required' })
+    }
+    try {
+        const group = await Group.findById(groupId)
+        if (!group) return res.status(404).json({ msg: 'Group not found'})
+        if (!group.members.includes(userId)) {
+            group.members.push(userId);
+            await group.save()
+        }
+        res.status(200).json({ msg: 'User added to group successfully', group})
+    } catch (error) {
+        res.status(400).json({ msg: 'Error adding member', error})
+    }
+};
+
+// Find user's groups
+exports.getGroups = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const groups = await Group.find({ members: userId });
+        res.status(200).json({ msg: 'Groups fetched successfully', groups })
+    } catch (error) {
+        res.status(400).json({ msg: 'Error getting groups', error })
+    }
+};
