@@ -7,14 +7,30 @@ const Chat = ({ currentUser }) => {
   const [messages, setMessages] = useState([]);
   const [receiverId, setReceiverId] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   const messagesEndRef = useRef(null);
 
+  // Charger tous les utilisateurs au montage
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get('/api/users/usersList');
+        console.log(res.data)
+        setAllUsers(res.data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des utilisateurs", err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Gérer connexion socket et événements
   useEffect(() => {
     if (currentUser) {
       socket.emit('addUser', {
         userId: currentUser._id,
-        username: currentUser.username
+        username: currentUser.username,
       });
     }
 
@@ -23,13 +39,13 @@ const Chat = ({ currentUser }) => {
     });
 
     socket.on('getMessage', (data) => {
-        if (!data.sender || !data.sender._id) {
-    data.sender = {
-      _id: data.senderId || 'unknown',
-      username: 'Unknown',
-      avatar: '/default-avatar.png'
-    };
-  }
+      if (!data.sender || !data.sender._id) {
+        data.sender = {
+          _id: data.senderId || 'unknown',
+          username: 'Unknown',
+          avatar: '/default-avatar.png',
+        };
+      }
       setMessages((prev) => [...prev, data]);
     });
 
@@ -39,21 +55,26 @@ const Chat = ({ currentUser }) => {
     };
   }, [currentUser]);
 
+  // Charger les messages entre currentUser et receiverId
   useEffect(() => {
     const foundMessages = async () => {
-      if (!receiverId || receiverId === currentUser._id) return;
+      if (!receiverId || receiverId === currentUser._id) {
+        setMessages([]);
+        return;
+      }
 
       try {
         const res = await axios.get(`/api/messages/${currentUser._id}/${receiverId}`);
         setMessages(res.data);
       } catch (err) {
-        console.error("Couldn't fetch messages", err);
+        console.error("Impossible de récupérer les messages", err);
       }
     };
 
     foundMessages();
   }, [receiverId, currentUser._id]);
 
+  // Scroll automatique quand messages changent
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -65,7 +86,7 @@ const Chat = ({ currentUser }) => {
       const msgData = {
         senderId: currentUser._id,
         receiverId,
-        text: message.trim()
+        text: message.trim(),
       };
 
       socket.emit('sendMessage', msgData);
@@ -73,7 +94,7 @@ const Chat = ({ currentUser }) => {
       try {
         await axios.post('/api/messages', msgData);
       } catch (err) {
-        console.error("Couldn't send message", err);
+        console.error("Impossible d’envoyer le message", err);
       }
 
       setMessages((prev) => [
@@ -83,35 +104,52 @@ const Chat = ({ currentUser }) => {
           sender: {
             _id: currentUser._id,
             username: currentUser.username,
-            avatar: currentUser.avatar
+            avatar: currentUser.avatar || '/default-avatar.png',
           },
-          _id: Date.now() 
-        }
+          _id: Date.now(),
+        },
       ]);
 
       setMessage('');
     }
   };
 
+  // Fonction pour savoir si un utilisateur est en ligne
+  const isUserOnline = (userId) => onlineUsers.some((u) => u.userId === userId);
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      {/* Liste des utilisateurs connectés */}
-      <div style={{ width: '200px', borderRight: '1px solid #ccc', padding: '10px' }}>
-        <h4>Online Users</h4>
-        {onlineUsers
-          .filter(user => user.userId !== currentUser._id)
+      {/* Liste complète des utilisateurs */}
+      <div style={{ width: '220px', borderRight: '1px solid #ccc', padding: '10px', overflowY: 'auto' }}>
+        <h4>Users</h4>
+        {allUsers
+          .filter((user) => user._id !== currentUser._id)
           .map((user) => (
             <div
-              key={`${user.userId}-${user.socketId}`}
+              key={user._id}
+              onClick={() => setReceiverId(user._id)}
               style={{
                 cursor: 'pointer',
-                padding: '5px',
-                backgroundColor: receiverId === user.userId ? '#e0e0e0' : 'transparent',
-                borderRadius: '5px'
+                padding: '8px',
+                marginBottom: '4px',
+                backgroundColor: receiverId === user._id ? '#e0e0e0' : 'transparent',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
               }}
-              onClick={() => setReceiverId(user.userId)}
             >
-              {user.username} {receiverId === user.userId && '✅'}
+              {/* Cercle vert si en ligne */}
+              <span
+                style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: isUserOnline(user._id) ? 'green' : 'transparent',
+                  border: isUserOnline(user._id) ? 'none' : '1px solid #ccc',
+                }}
+              />
+              <span>{user.username}</span>
             </div>
           ))}
       </div>
@@ -120,58 +158,62 @@ const Chat = ({ currentUser }) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: '15px' }}>
           <h4>Messages</h4>
-          {messages.map((msg) => {
-            const isOwn = msg.sender._id === currentUser._id;
-            return (
-              <div
-                key={msg._id || `${msg.sender._id}-${Math.random()}`}
-                style={{
-                  display: 'flex',
-                  justifyContent: isOwn ? 'flex-end' : 'flex-start',
-                  marginBottom: '10px'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', maxWidth: '60%' }}>
-                  {!isOwn && (
-                    <img
-                      src={msg.sender.avatar}
-                      alt="avatar"
+          {receiverId ? (
+            messages.map((msg) => {
+              const isOwn = msg.sender._id === currentUser._id;
+              return (
+                <div
+                  key={msg._id || `${msg.sender._id}-${Math.random()}`}
+                  style={{
+                    display: 'flex',
+                    justifyContent: isOwn ? 'flex-end' : 'flex-start',
+                    marginBottom: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', maxWidth: '60%' }}>
+                    {!isOwn && (
+                      <img
+                        src={msg.sender.avatar || '/default-avatar.png'}
+                        alt="avatar"
+                        style={{
+                          width: '30px',
+                          height: '30px',
+                          borderRadius: '50%',
+                          marginRight: '10px',
+                        }}
+                      />
+                    )}
+                    <div
                       style={{
-                        width: '30px',
-                        height: '30px',
-                        borderRadius: '50%',
-                        marginRight: '10px'
+                        background: isOwn ? '#dcf8c6' : '#f0f0f0',
+                        padding: '10px',
+                        borderRadius: '10px',
+                        textAlign: 'left',
                       }}
-                    />
-                  )}
-                  <div
-                    style={{
-                      background: isOwn ? '#dcf8c6' : '#f0f0f0',
-                      padding: '10px',
-                      borderRadius: '10px',
-                      textAlign: 'left'
-                    }}
-                  >
-                    <strong>{isOwn ? 'You' : msg.sender.username}</strong>
-                    <br />
-                    {msg.text}
+                    >
+                      <strong>{isOwn ? 'You' : msg.sender.username}</strong>
+                      <br />
+                      {msg.text}
+                    </div>
+                    {isOwn && (
+                      <img
+                        src={msg.sender.avatar || '/default-avatar.png'}
+                        alt="avatar"
+                        style={{
+                          width: '30px',
+                          height: '30px',
+                          borderRadius: '50%',
+                          marginLeft: '10px',
+                        }}
+                      />
+                    )}
                   </div>
-                  {isOwn && (
-                    <img
-                      src={msg.sender.avatar}
-                      alt="avatar"
-                      style={{
-                        width: '30px',
-                        height: '30px',
-                        borderRadius: '50%',
-                        marginLeft: '10px'
-                      }}
-                    />
-                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <p style={{ color: '#999' }}>Select a user to start chatting</p>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
@@ -181,17 +223,18 @@ const Chat = ({ currentUser }) => {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
+            placeholder={receiverId ? 'Type your message...' : 'Select a user to chat'}
             style={{
               flex: 1,
               padding: '10px',
               border: '1px solid #ccc',
               borderRadius: '5px',
-              marginRight: '10px'
+              marginRight: '10px',
             }}
             onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            disabled={!receiverId}
           />
-          <button onClick={sendMessage} style={{ padding: '10px 20px' }}>
+          <button onClick={sendMessage} disabled={!receiverId} style={{ padding: '10px 20px' }}>
             Send
           </button>
         </div>
