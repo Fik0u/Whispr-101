@@ -1,5 +1,5 @@
 const express = require('express');
-const { newGroup, addMember, getGroups } = require('../controllers/group.controller');
+const { newGroup, addMember, getGroups, sendGroupMessage, getGroupMessages } = require('../controllers/group.controller');
 
 const router = express.Router();
 
@@ -17,6 +17,12 @@ router.post('/:groupId/members', addMember);
 
 // Get User's Groups Route
 router.get('/user/:userId', getGroups);
+
+// Send Group Message Route
+router.post('/:groupId/messages', sendGroupMessage);
+
+// Get Group Messages Route
+router.get('/:groupId/messages', getGroupMessages);
 
 
 module.exports = router;

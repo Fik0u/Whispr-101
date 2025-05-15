@@ -1,4 +1,5 @@
 const Group = require("../model/Group");
+const Message = require('../model/Message');
 
 
 // Create new group
@@ -52,5 +53,43 @@ exports.getGroups = async (req, res) => {
         res.status(200).json({ msg: 'Groups fetched successfully', groups })
     } catch (error) {
         res.status(400).json({ msg: 'Error getting groups', error })
+    }
+};
+
+// Send Group Message
+exports.sendGroupMessage = async (req, res) => {
+    const { groupId } = req.params;
+    const { senderId, text } = req.body;
+    if (!senderId || !text) {
+        return res.status(400).json({ msg: 'Send & Text are required' })
+    }
+    try {
+        const message = new Message({
+            sender: senderId, text
+        });
+        const savedMessage = await message.save();
+        const group = await Group.findById(groupId);
+        group.messages.push(savedMessage._id);
+        await group.save();
+        res.status(201).json({ msg: 'Message sent successfully', savedMessage })
+    } catch (error) {
+        res.status(400).json({ msg: "Couldn't send group message", error })
+    }
+};
+
+// Get group messages
+exports.getGroupMessages = async (req, res) => {
+    const { groupId } = req.params;
+    try {
+        const group = await Group.findById(groupId).populate({
+            path: 'messages',
+            populate: { path: 'sender', select: 'username avatar' }
+        });
+        if (!group) {
+            return res.status(404).json({ msg: 'Group not found'});
+        }
+        res.status(200).json({ msg: 'Group messages found succesfully', group })
+    } catch (error) {
+        res.status(400).json({ msg: "Couldn't get group messages", error })
     }
 };
