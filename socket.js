@@ -1,4 +1,5 @@
 let onlineUsers = [];
+const Message = require('./model/Message');
 
 const addUser = (userId, username, socketId) => {
     if (!onlineUsers.some(user => user.userId === userId)) {
@@ -21,6 +22,24 @@ module.exports = (io) => {
         socket.on('addUser', ({ userId, username }) => {
             addUser(userId, username, socket.id);
             io.emit('getUsers', onlineUsers)
+        });
+
+        socket.on('joinGroup', (groupId) => {
+            console.log(`Socket ${socket.id} joined the group ${groupId}`);
+            socket.join(groupId)
+        });
+
+        socket.on('sendGroupMessage', async ({ groupId, senderId, text}) => {
+            try {
+                const newMessage = await Message.create({
+                    group: groupId, sender: senderId, text, timestamp: new Date()
+                });
+                const populatedMessage = await newMessage.populate('sender', 'username avatar')
+
+                io.to(groupId).emit('getGroupMessage', populatedMessage)
+            } catch (error) {
+                console.error('Error while sending group message', error)
+            }
         });
 
         socket.on('sendMessage', ({ senderId, receiverId, text }) => {
