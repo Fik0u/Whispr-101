@@ -6,12 +6,17 @@ import { getGroupMessages, sendMessage } from '../JS/actions/groupAction';
 const GroupChat = () => {
     const dispatch = useDispatch();
     const selectedGroup = useSelector(state => state.groupReducer.selectedGroup);
+
+    const groupMessages = useSelector(state => state.groupReducer.groupMessages[selectedGroup?._id]);
+
     const user = useSelector(state => state.authReducer.user);
+
     const [message, setMessage] = useState('');
 
     const handleSend = () => {
         if (!message.trim()) return;
         dispatch(sendMessage(selectedGroup._id, user._id, message));
+        dispatch(getGroupMessages(selectedGroup._id));
         setMessage('');
     };
     useEffect(() => {
@@ -27,10 +32,10 @@ const GroupChat = () => {
         <p className="text-sm text-gray-500">{selectedGroup?.description || ''}</p>
       </div>
 
-      {/* Messages - à remplir plus tard */}
+
       <div className="flex-1 overflow-y-auto mb-4 space-y-2">
-  {selectedGroup.messages && selectedGroup.messages.length > 0 ? (
-    selectedGroup.messages.map((msg) => (
+  {groupMessages && groupMessages.length > 0 ? (
+    groupMessages.map((msg) => (
       <div key={msg._id} className="bg-gray-100 p-2 rounded-md">
         <p className="text-sm font-semibold">{msg.sender?.username || 'Utilisateur'}</p>
         <p>{msg.text}</p>
@@ -41,7 +46,7 @@ const GroupChat = () => {
   )}
 </div>
 
-      {/* Input de message */}
+
       <div className="flex gap-2">
         <input
           type="text"

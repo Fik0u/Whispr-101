@@ -48,7 +48,7 @@ export const addUser = (groupId, userId) => async (dispatch) => {
 export const removeUser = (groupId, userId) => async (dispatch) => {
     dispatch({ type: LOAD_GROUP });
     try {
-        const { data } = await axios.post(`/api/groups/${groupId}/removeMember`, userId);
+        const { data } = await axios.post(`/api/groups/${groupId}/removeMember`, { userId });
         dispatch({ type: REMOVE_USER, payload: data.group })
     } catch (error) {
         dispatch({ type: FAIL_GROUP, payload: error.message })
@@ -65,7 +65,7 @@ export const getGroupMessages = (groupId) => async (dispatch) => {
     dispatch({ type: LOAD_GROUP });
     try {
         const { data } = await axios.get(`/api/groups/${groupId}/messages`);
-        dispatch({ type: GET_GROUP_MESSAGES, payload: data.group.messages })
+        dispatch({ type: GET_GROUP_MESSAGES, payload: { groupId, messages: data.group.messages }})
     } catch (error) {
         dispatch({ type: FAIL_GROUP, payload: error.message })
     }

@@ -71,19 +71,18 @@ const Chat = ({ currentUser }) => {
     };
   }, [currentUser, dispatch]);
 
-  // Charger les messages entre currentUser et receiverId
   useEffect(() => {
-    if (selectedGroup && currentUser && !groupMessages[selectedGroup._id]) {
-      dispatch(getMessages(selectedGroup._id))
-    }
-  }, [groupMessages, currentUser, selectedGroup, dispatch]);
+  if (receiverId) {
+    dispatch(getMessages(currentUser._id, receiverId));
+  }
+}, [receiverId, currentUser._id, dispatch]);
 
   // Scroll automatique quand messages changent
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (selectedGroup && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [selectedGroup, groupMessages]);
 
   const sendMessage = () => {
     if (message.trim() && receiverId) {
@@ -149,7 +148,7 @@ const Chat = ({ currentUser }) => {
       </div>
 
       {/* Groups list  */}
-      <div>
+      <div style={{ width: '220px', borderRight: '1px solid #ccc', padding: '10px', overflowY: 'auto' }}>
       <h4>Groups</h4>
       {groups.map(group => (
         <div

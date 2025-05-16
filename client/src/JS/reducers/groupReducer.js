@@ -28,7 +28,9 @@ const groupReducer = (state = initialState, { type, payload }) => {
 
         case GET_GROUP_MESSAGES: return { ...state, isLoad: false, groupMessages: { ...state.groupMessages, [payload.groupId]: payload.messages } };
 
-        case SEND_MESSAGE: return { ...state, isLoad: false, selectedGroup: { ...state.selectedGroup, messages: [...(state.selectedGroup?.messages || []), payload]}};
+        case SEND_MESSAGE:
+            const groupId = payload.groupId;
+            return { ...state, isLoad: false, groupMessages: { ...state.groupMessages, [groupId]: [...(state.groupMessages[groupId] || []), payload] } };
 
         case CLEAR_SELECTED_GROUP: return { ...state, selectedGroup: null };
 
