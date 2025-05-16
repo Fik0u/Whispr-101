@@ -11,7 +11,7 @@ exports.newGroup = async (req, res) => {
     try {
         let membersList = members || [];
         if (!membersList.includes(adminId)) {
-            memebersList.push(adminId)
+            membersList.push(adminId)
         }
 
         const newGroup = new Group({
@@ -42,6 +42,27 @@ exports.addMember = async (req, res) => {
         res.status(200).json({ msg: 'User added to group successfully', group})
     } catch (error) {
         res.status(400).json({ msg: 'Error adding member', error})
+    }
+};
+
+// Remove member from group
+exports.removeMember = async (req, res) => {
+    const { groupId } = req.params;
+    const { userId } = req.body;
+
+    if(!userId) {
+        return res.status(400).json({ msg: 'User is required' })
+    }
+    try {
+        const group = await Group.findById(groupId);
+        if(!group) {
+            return res.status(404).json({ msg: 'Group not found' })
+        }
+        group.members = group.members.filter(memberId => memberId.toString() !== userId);
+        await group.save();
+        res.status(200).json({ msg: 'User removed from group successfully', group })
+    } catch (error) {
+        res.status(400).json({ msg: 'Error removing member', error })
     }
 };
 
