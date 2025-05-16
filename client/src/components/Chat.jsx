@@ -3,12 +3,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import socket from '../socket';
 import { addMessage, getMessages, receiveMessage, setReceiver } from '../JS/actions/chatAction';
+import GroupChat from './GroupChat';
+import { clearSelectedGroup, getGroups, setSelectedGroup } from '../JS/actions/groupAction';
 
 const Chat = ({ currentUser }) => {
 
   const [message, setMessage] = useState('');
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+
+  const groups = useSelector(state => state.groupReducer.groups);
+  const selectedGroup = useSelector(state => state.groupReducer.selectedGroup);
+  const groupMessages = useSelector(state => state.groupReducer.groupMessages);
+  
 
   const dispatch = useDispatch();
   const { receiverId, messages } = useSelector(state => state.chatReducer);
@@ -27,6 +34,12 @@ const Chat = ({ currentUser }) => {
     };
     fetchUsers();
   }, []);
+  
+  useEffect(() => {
+    if (currentUser && currentUser._id) {
+      dispatch(getGroups(currentUser._id))
+    }
+  }, [currentUser, dispatch]);
 
   // Gérer connexion socket et événements
   useEffect(() => {
@@ -60,10 +73,10 @@ const Chat = ({ currentUser }) => {
 
   // Charger les messages entre currentUser et receiverId
   useEffect(() => {
-    if (receiverId && currentUser) {
-      dispatch(getMessages(currentUser._id, receiverId))
+    if (selectedGroup && currentUser && !groupMessages[selectedGroup._id]) {
+      dispatch(getMessages(selectedGroup._id))
     }
-  }, [receiverId, currentUser, dispatch]);
+  }, [groupMessages, currentUser, selectedGroup, dispatch]);
 
   // Scroll automatique quand messages changent
   useEffect(() => {
@@ -106,7 +119,9 @@ const Chat = ({ currentUser }) => {
           .map((user) => (
             <div
               key={user._id}
-              onClick={() => dispatch(setReceiver(user._id))}
+              onClick={() => {
+                dispatch(clearSelectedGroup());
+                dispatch(setReceiver(user._id))}}
               style={{
                 cursor: 'pointer',
                 padding: '8px',
@@ -133,7 +148,26 @@ const Chat = ({ currentUser }) => {
           ))}
       </div>
 
+      {/* Groups list  */}
+      <div>
+      <h4>Groups</h4>
+      {groups.map(group => (
+        <div
+          key={group._id}
+          onClick={() => dispatch(setSelectedGroup(group))}
+          style={{ cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
+        >
+          {group.name}
+        </div>
+      ))}
+    </div>
+
       {/* Section messages */}
+      {selectedGroup ? (
+        <div style={{ flex: 1 }}>
+          <GroupChat />
+        </div>
+      ) : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, overflowY: 'auto', padding: '15px' }}>
           <h4>Messages</h4>
@@ -218,6 +252,7 @@ const Chat = ({ currentUser }) => {
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 };

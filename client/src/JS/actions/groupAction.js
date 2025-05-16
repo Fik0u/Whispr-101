@@ -1,6 +1,6 @@
 // Necessary Imports
 import axios from 'axios';
-import { ADD_USER, CREATE_GROUP, FAIL_GROUP, GET_GROUPS, LOAD_GROUP, REMOVE_USER, SET_SELECTED_GROUP } from "../actionTypes/groupActionTypes";
+import { ADD_USER, CLEAR_SELECTED_GROUP, CREATE_GROUP, FAIL_GROUP, GET_GROUP_MESSAGES, GET_GROUPS, LOAD_GROUP, REMOVE_USER, SEND_MESSAGE, SET_SELECTED_GROUP } from "../actionTypes/groupActionTypes";
 
 
 //! Actions creators
@@ -56,6 +56,32 @@ export const removeUser = (groupId, userId) => async (dispatch) => {
 };
 
 // Select a group
-export const selectedGroup = (group) => (dispatch) => {
+export const setSelectedGroup = (group) => (dispatch) => {
     dispatch({ type: SET_SELECTED_GROUP, payload: group })
 };
+
+// Get group messages
+export const getGroupMessages = (groupId) => async (dispatch) => {
+    dispatch({ type: LOAD_GROUP });
+    try {
+        const { data } = await axios.get(`/api/groups/${groupId}/messages`);
+        dispatch({ type: GET_GROUP_MESSAGES, payload: data.group.messages })
+    } catch (error) {
+        dispatch({ type: FAIL_GROUP, payload: error.message })
+    }
+};
+
+// Send group message
+export const sendMessage = (groupId, senderId, text) => async (dispatch) => {
+    dispatch({ type: LOAD_GROUP });
+    try {
+        const { data } = await axios.post(`/api/groups/${groupId}/messages`, { senderId, text });
+        dispatch({ type: SEND_MESSAGE, payload: data.savedMessage });
+    } catch (error) {
+        dispatch({ type: FAIL_GROUP, payload: error.message })
+    }
+};
+
+export const clearSelectedGroup = () => ({
+    type: CLEAR_SELECTED_GROUP
+});
