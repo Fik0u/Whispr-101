@@ -1,22 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import socket from '../socket';
+import { addMessage, getMessages, receiveMessage, setReceiver } from '../JS/actions/chatAction';
 
 const Chat = ({ currentUser }) => {
+
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [receiverId, setReceiverId] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
 
+  const dispatch = useDispatch();
+  const { receiverId, messages } = useSelector(state => state.chatReducer);
+  
   const messagesEndRef = useRef(null);
 
-  // Charger tous les utilisateurs au montage
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await axios.get('/api/users/usersList');
-        console.log(res.data)
         setAllUsers(res.data);
       } catch (err) {
         console.error("Erreur lors de la récupération des utilisateurs", err);
@@ -46,33 +49,21 @@ const Chat = ({ currentUser }) => {
           avatar: '/default-avatar.png',
         };
       }
-      setMessages((prev) => [...prev, data]);
+      dispatch(receiveMessage(data))
     });
 
     return () => {
       socket.off('getUsers');
       socket.off('getMessage');
     };
-  }, [currentUser]);
+  }, [currentUser, dispatch]);
 
   // Charger les messages entre currentUser et receiverId
   useEffect(() => {
-    const foundMessages = async () => {
-      if (!receiverId || receiverId === currentUser._id) {
-        setMessages([]);
-        return;
-      }
-
-      try {
-        const res = await axios.get(`/api/messages/${currentUser._id}/${receiverId}`);
-        setMessages(res.data);
-      } catch (err) {
-        console.error("Impossible de récupérer les messages", err);
-      }
-    };
-
-    foundMessages();
-  }, [receiverId, currentUser._id]);
+    if (receiverId && currentUser) {
+      dispatch(getMessages(currentUser._id, receiverId))
+    }
+  }, [receiverId, currentUser, dispatch]);
 
   // Scroll automatique quand messages changent
   useEffect(() => {
@@ -81,7 +72,7 @@ const Chat = ({ currentUser }) => {
     }
   }, [messages]);
 
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (message.trim() && receiverId) {
       const msgData = {
         senderId: currentUser._id,
@@ -90,27 +81,15 @@ const Chat = ({ currentUser }) => {
       };
 
       socket.emit('sendMessage', msgData);
-
-      try {
-        await axios.post('/api/messages', msgData);
-      } catch (err) {
-        console.error("Impossible d’envoyer le message", err);
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          ...msgData,
-          sender: {
-            _id: currentUser._id,
-            username: currentUser.username,
-            avatar: currentUser.avatar || '/default-avatar.png',
-          },
-          _id: Date.now(),
+      dispatch(addMessage({ ...msgData,
+        sender: {
+          _id: currentUser._id,
+          username: currentUser.username,
+          avatar: currentUser.avatar
         },
-      ]);
-
-      setMessage('');
+        _id: Date.now()
+      }));
+      setMessage('')
     }
   };
 
@@ -127,7 +106,7 @@ const Chat = ({ currentUser }) => {
           .map((user) => (
             <div
               key={user._id}
-              onClick={() => setReceiverId(user._id)}
+              onClick={() => dispatch(setReceiver(user._id))}
               style={{
                 cursor: 'pointer',
                 padding: '8px',
