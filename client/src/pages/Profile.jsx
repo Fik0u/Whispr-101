@@ -30,7 +30,7 @@ const Profile = () => {
         {/* Header profil */}
         <div className="flex flex-col items-center mb-10">
           <img
-            src="https://refugedulacdulou.com/wp-content/uploads/2019/01/avatar-anonyme.png"
+            src={user.avatar || "https://refugedulacdulou.com/wp-content/uploads/2019/01/avatar-anonyme.png"}
             alt="Profile"
             className="w-28 h-28 rounded-full mb-4 border-4 border-indigo-600"
           />

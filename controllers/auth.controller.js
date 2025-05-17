@@ -2,6 +2,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const User = require("../model/User");
+const cloudinary = require("../utils/cloudinary");
 
 
 
@@ -66,9 +67,16 @@ exports.updateProfile = async (req, res) => {
         if (userId !== authUserId) {
             return res.status(403).json({ msg: 'Unauthorized'})
         }
-        const { username, bio, status } = req.body;
+        const { username, bio, status, avatar } = req.body;
+        let updatedFields = { username, bio, status };
+        if (avatar) {
+            const uploadAvatar = await cloudinary.uploader.upload(avatar, {
+                folder: 'whispr/profiles'
+            });
+            updatedFields.avatar = uploadAvatar.secure_url;
+        }
         const updatedUser = await User.findByIdAndUpdate(
-            userId, {username, bio, status }, { new: true }
+            userId, updatedFields, { new: true }
         ).select('-password');
         if (!updatedUser) {
             return res.status(404).json({ msg: 'User not found' })
