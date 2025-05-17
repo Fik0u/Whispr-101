@@ -1,71 +1,106 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../JS/actions/authAction";
+import { ChevronDown, LogOut, User, Settings } from "lucide-react";
 
 const NavBar = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isAuth = useSelector((state) => state.authReducer.isAuth);
+  const user = useSelector((state) => state.authReducer.user);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const isAuth = useSelector(state => state.authReducer.isAuth);
-    const user = useSelector(state => state.authReducer.user);
-
+  const handleLogout = () => {
+    dispatch(logout(navigate));
+    setDropdownOpen(false);
+  };
 
   return (
-    <nav style={styles.nav}>
-        <h2 style={styles.logo}>Whispr 💬</h2>
-        <div style={styles.links}>
-            <Link to = '/' style={styles.link} >Home</Link>
-            {!isAuth ? (
-                <>
-            <Link to = '/login' style={styles.link} >Login</Link>
-            <Link to = '/register' style={styles.link} >Register</Link>
-                </>
-            ) : (
-                <>
-            <span style={styles.username}> Hi, {user.username}</span>
-            <Link to = '/profile' style={styles.link} >Profile</Link>
-            <button onClick={() => dispatch(logout(navigate))} style={styles.logoutBtn} >Logout</button>
-                </>
-            )}
-        </div>
-    </nav>
-  )
-}
+    <nav className="bg-gray-900 text-white px-6 py-4 shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="text-2xl font-bold text-indigo-400 hover:text-indigo-500 transition"
+        >
+          Whispr 💬
+        </Link>
 
-const styles = {
-  nav: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#222',
-    color: '#fff',
-    padding: '10px 20px',
-  },
-  logo: {
-    margin: 0,
-  },
-  links: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-  },
-  link: {
-    color: '#fff',
-    textDecoration: 'none',
-  },
-  logoutBtn: {
-    backgroundColor: '#e74c3c',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '10px',
-    padding: '5px 10px',
-    cursor: 'pointer',
-  },
-  username: {
-    color: '#1abc9c',
-    fontWeight: 'bold',
-  }
+        {/* Links */}
+        <div className="flex items-center gap-6">
+          <Link to="/" className="hover:text-indigo-300 transition">
+            Home
+          </Link>
+
+          {!isAuth ? (
+            <>
+              <Link to="/about" className="hover:text-indigo-300 transition">
+                About
+              </Link>
+              <Link to="/features" className="hover:text-indigo-300 transition">
+                Features
+              </Link>
+              <Link to="/login" className="hover:text-indigo-300 transition">
+                Login
+              </Link>
+              <Link to="/register" className="hover:text-indigo-300 transition">
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/chats" className="hover:text-indigo-300 transition">
+                Chats
+              </Link>
+              <Link to="/groups" className="hover:text-indigo-300 transition">
+                Groups
+              </Link>
+
+              {/* Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-1 hover:text-indigo-300 transition"
+                >
+                  <span className="text-indigo-400 font-semibold">{user?.username}</span>
+                  <ChevronDown size={16} />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50">
+                    <Link
+                      to="/profile"
+                      className="flex items-center px-4 py-2 hover:bg-gray-700 transition"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <User className="mr-2" size={16} />
+                      My Profile
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="flex items-center px-4 py-2 hover:bg-gray-700 transition"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <Settings className="mr-2" size={16} />
+                      Settings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center px-4 py-2 w-full text-left hover:bg-red-600 transition text-red-400"
+                    >
+                      <LogOut className="mr-2" size={16} />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
 };
 
-export default NavBar
+export default NavBar;
