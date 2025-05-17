@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('path');
+
 const http = require('http');
 const { Server } = require('socket.io');
 
@@ -37,6 +39,8 @@ app.use('/api/messages', require('./routes/message.route'));
 app.use('/api/conversations', require('./routes/conversation.routes'));
 
 app.use('/api/groups', require('./routes/group.routes'));
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 

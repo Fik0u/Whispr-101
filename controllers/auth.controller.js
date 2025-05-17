@@ -2,7 +2,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const User = require("../model/User");
-const cloudinary = require("../utils/cloudinary");
+const uploadToCloudinary = require("../utils/cloudinaryUpload");
 
 
 
@@ -62,27 +62,29 @@ exports.login = async (req, res) => {
 // Update Profile
 exports.updateProfile = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const authUserId = req.user._id.toString();
-        if (userId !== authUserId) {
-            return res.status(403).json({ msg: 'Unauthorized'})
+
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
         }
-        const { username, bio, status, avatar } = req.body;
-        let updatedFields = { username, bio, status };
-        if (avatar) {
-            const uploadAvatar = await cloudinary.uploader.upload(avatar, {
-                folder: 'whispr/profiles'
-            });
-            updatedFields.avatar = uploadAvatar.secure_url;
+
+        const { username, bio, status } = req.body;
+        if (username) user.username = username;
+        if (bio) user.bio = bio;
+        if (status) user.status = status;
+
+        if (req.file) {
+            const avatarURL = await uploadToCloudinary(req.file.path);
+            user.avatar = avatarURL;
         }
-        const updatedUser = await User.findByIdAndUpdate(
-            userId, updatedFields, { new: true }
-        ).select('-password');
-        if (!updatedUser) {
-            return res.status(404).json({ msg: 'User not found' })
-        }
-        res.status(200).json({ msg: 'User profile updated successfully ', updatedUser})
+
+        await user.save();
+
+        res.status(200).json({ msg: 'Profile updated successfully', user });
     } catch (error) {
-        res.status(400).json({ msg: 'Error while updating profile'})
+        res.status(400).json({ 
+            msg: 'Error while updating profile', 
+            error: error.message || error.toString() 
+        });
     }
 };
