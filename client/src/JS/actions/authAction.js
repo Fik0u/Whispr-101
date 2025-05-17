@@ -1,6 +1,6 @@
 // Necessary Imports
 import axios from 'axios';
-import { CURRENT_AUTH, FAIL_AUTH, LOAD_AUTH, LOGOUT_AUTH, SUCCESS_AUTH } from "../actionTypes/authActionTypes";
+import { CURRENT_AUTH, FAIL_AUTH, LOAD_AUTH, LOGOUT_AUTH, SUCCESS_AUTH, UPDATE_PROFILE } from "../actionTypes/authActionTypes";
 
 
 //! Action creators
@@ -49,4 +49,20 @@ export const currentUser = () => async (dispatch) => {
 export const logout = (navigate) => (dispatch) => {
     dispatch({ type: LOGOUT_AUTH });
     navigate('/')
+};
+
+//Update Profile
+export const updateProfile = (updatedData) => async (dispatch, getState) => {
+    try {
+        const { authReducer: { user, token } } = getState();
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        };
+        const { data } = await axios.put(`api/auth/${user._id}`, updatedData, config);
+        dispatch({ type: UPDATE_PROFILE, payload: data})
+    } catch (error) {
+        dispatch({ type: FAIL_AUTH, payload: error.response.data.errors });
+    }
 };

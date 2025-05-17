@@ -57,3 +57,24 @@ exports.login = async (req, res) => {
         res.status(400).json({ msg: 'Login failed', error })
     }
 };
+
+// Update Profile
+exports.updateProfile = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const authUserId = req.user._id.toString();
+        if (userId !== authUserId) {
+            return res.status(403).json({ msg: 'Unauthorized'})
+        }
+        const { username, bio, status } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(
+            userId, {username, bio, status }, { new: true }
+        ).select('-password');
+        if (!updatedUser) {
+            return res.status(404).json({ msg: 'User not found' })
+        }
+        res.status(200).json({ msg: 'User profile updated successfully ', updatedUser})
+    } catch (error) {
+        res.status(400).json({ msg: 'Error while updating profile'})
+    }
+};

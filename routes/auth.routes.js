@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login } = require('../controllers/auth.controller');
+const { register, login, updateProfile } = require('../controllers/auth.controller');
 const isAuth = require('../middleware/isAuth');
 const { registerValidation, loginValidation, validate } = require('../middleware/validator');
 
@@ -20,6 +20,9 @@ router.post('/login', loginValidation(), validate, login);
 router.get('/current', isAuth, (req, res) => {
     res.json(req.user);
 });
+
+//Update Profile Route
+router.put('/:id', isAuth, updateProfile);
 
 
 module.exports = router;
