@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: ''
+        default: 'https://refugedulacdulou.com/wp-content/uploads/2019/01/avatar-anonyme.png'
     },
     isOnline: {
         type: Boolean,
