@@ -9,8 +9,8 @@ import { useEffect } from 'react';
 import { currentUser } from './JS/actions/authAction';
 import Profile from './pages/Profile';
 import NavBar from './components/NavBar';
-import Chat from './components/Chat';
-import GroupChat from './components/GroupChat';
+import Chats from './pages/Chats';
+import Groups from './pages/Groups';
 
 function App() {
 
@@ -35,8 +35,8 @@ function App() {
         {isAuth && (
           <>
         <Route path = '/profile' element = {<Profile />} />
-        <Route path = '/chats' element = {<Chat />} />
-        <Route path = '/groups' element = {<GroupChat />} />
+        <Route path = '/chats' element = {<Chats />} />
+        <Route path = '/groups' element = {<Groups />} />
           </>
         )}
 
