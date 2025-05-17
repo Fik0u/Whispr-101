@@ -52,17 +52,16 @@ export const logout = (navigate) => (dispatch) => {
 };
 
 //Update Profile
-export const updateProfile = (updatedData) => async (dispatch, getState) => {
+export const updateProfile = (formData) => async (dispatch) => {
+    dispatch({ type: LOAD_AUTH });
     try {
-        const { authReducer: { user, token } } = getState();
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        };
-        const { data } = await axios.put(`api/auth/${user._id}`, updatedData, config);
-        dispatch({ type: UPDATE_PROFILE, payload: data})
+        const { data } = await axios.put('/api/auth/update', formData, {
+            headers: { 'Content-Type': 'multipart/form-data',
+                Authorization: localStorage.getItem('token') }
+        });
+        dispatch({ type: UPDATE_PROFILE, payload: data.user});
+        localStorage.setItem('user', JSON.stringify(data.user))
     } catch (error) {
-        dispatch({ type: FAIL_AUTH, payload: error.response.data.errors });
+        dispatch({ type: FAIL_AUTH, payload: error.response.data.errors || error.message });
     }
 };

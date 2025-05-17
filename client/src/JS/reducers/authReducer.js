@@ -7,7 +7,6 @@ import { CURRENT_AUTH, FAIL_AUTH, LOAD_AUTH, LOGOUT_AUTH, SUCCESS_AUTH, UPDATE_P
 const initialState = {
     isLoad: false,
     user: {},
-    token: null,
     isAuth: false,
     errors: [],
     success: []
@@ -27,7 +26,7 @@ const authReducer = (state = initialState, { type, payload }) => {
 
         case CURRENT_AUTH: return { ...state, isLoad: false, user: payload, isAuth: true };
 
-        case UPDATE_PROFILE: return { ...state, user: payload, errors: [] };
+        case UPDATE_PROFILE: return { ...state, isLoad: false, user: { ...state.user, ...payload }};
 
         case LOGOUT_AUTH: 
         localStorage.removeItem('token');
