@@ -7,10 +7,11 @@ import { USER_FAIL, USER_LOAD, USER_SUCCESS } from "../actionTypes/userActionTyp
 
 // Search Users
 export const searchUsers = (query) => async (dispatch) => {
-    dispatch({ USER_LOAD });
+    dispatch({ type: USER_LOAD });
     try {
         const { data } = await axios.get(`/api/users/search?query=${query}`);
-        dispatch({ type: USER_SUCCESS, payload: data })
+        console.log(data)
+        dispatch({ type: USER_SUCCESS, payload: data.users })
     } catch (error) {
         dispatch({ type: USER_FAIL, payload: error.response.data.message || error.message })
     }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../JS/actions/authAction";
+import { searchUsers } from "../JS/actions/userAction";
 import { ChevronDown, LogOut, User, Settings } from "lucide-react";
 
 const NavBar = () => {
@@ -10,6 +11,22 @@ const NavBar = () => {
   const isAuth = useSelector((state) => state.authReducer.isAuth);
   const user = useSelector((state) => state.authReducer.user);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const [search, setSearch] = useState('');
+  const [showResults, setShowResults] = useState(false);
+
+  const searchResults = useSelector(state => state.userReducer.users);
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    if (value.trim()) {
+      dispatch(searchUsers(value));
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+  };
 
   const handleLogout = () => {
     dispatch(logout(navigate));
@@ -56,6 +73,22 @@ const NavBar = () => {
               <Link to="/groups" className="hover:text-indigo-300 transition">
                 Groups
               </Link>
+              <div className="relative">
+                <input type="text" value={search} onChange={handleSearchChange} placeholder="Search a user" className="px-3 py-1 rounded-md bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                {showResults && (
+                  <div className="absolute bg-gray-900 border border-gray-700 mt-2 rounded-md w-64 max-h-60 overflow-y-auto z-50">
+                    {searchResults.map(u => (
+                      <div key={u._id} className="flex items-center justify-between px-3 py-2 hover:bg-gray-800 transition">
+                          <div className="flex items-center gap-2">
+                            <img src={u.avatar} alt={u.username} className="w-8 h-8 rounded-full" />
+                            <span>{u.username}</span>
+                          </div>
+                          <button className="text-sm text-indigo-400 hover:text-indigo-500">Add</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Dropdown */}
               <div className="relative">
