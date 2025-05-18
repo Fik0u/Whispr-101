@@ -34,6 +34,8 @@ app.use('/api/auth', require('./routes/auth.routes'));
 
 app.use('/api/users', require('./routes/user.routes'));
 
+app.use('/api/friends', require('./routes/friends.route'))
+
 app.use('/api/messages', require('./routes/message.route'));
 
 app.use('/api/conversations', require('./routes/conversation.routes'));
