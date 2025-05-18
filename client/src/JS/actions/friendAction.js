@@ -9,7 +9,12 @@ import { FRIEND_LOAD, FRIEND_REQUEST_FAIL, FRIEND_REQUEST_SUCCESS, FRIEND_RESPON
 export const sendFriendRequest = (recipientId) => async (dispatch) => {
     dispatch({ type: FRIEND_LOAD });
     try {
-        const { data } = await axios.post('/api/friends/send', { recipientId });
+        let config = {
+            headers: {
+                Authorization: localStorage.getItem('token')
+            }
+        }
+        const { data } = await axios.post('/api/friends/send', { recipientId }, config);
         dispatch({ type: FRIEND_REQUEST_SUCCESS, payload: data.message })
     } catch (error) {
         dispatch({ type: FRIEND_REQUEST_FAIL, payload: error.response.data.message || error.message })
@@ -20,7 +25,12 @@ export const sendFriendRequest = (recipientId) => async (dispatch) => {
 export const respondFriendRequest = (senderId, accept) => async (dispatch) => {
     dispatch({ type: FRIEND_LOAD });
     try {
-        const { data } = await axios.post('/api/friends/respond', { senderId, accept });
+        let config = {
+            headers: {
+                Authorization: localStorage.getItem('token')
+            }
+        }
+        const { data } = await axios.post('/api/friends/respond', { senderId, accept }, config);
         dispatch({ type: FRIEND_RESPONSE_SUCCESS, payload: data.message })
     } catch (error) {
         dispatch({ type: FRIEND_RESPONSE_FAIL, payload: error.response.data.message || error.message })

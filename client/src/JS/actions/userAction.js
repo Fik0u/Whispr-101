@@ -10,7 +10,6 @@ export const searchUsers = (query) => async (dispatch) => {
     dispatch({ type: USER_LOAD });
     try {
         const { data } = await axios.get(`/api/users/search?query=${query}`);
-        console.log(data)
         dispatch({ type: USER_SUCCESS, payload: data.users })
     } catch (error) {
         dispatch({ type: USER_FAIL, payload: error.response.data.message || error.message })
