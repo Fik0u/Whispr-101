@@ -1,6 +1,6 @@
 // Necessary Imports
 import axios from 'axios';
-import { FRIEND_LOAD, FRIEND_REQUEST_FAIL, FRIEND_REQUEST_SUCCESS, FRIEND_RESPONSE_FAIL, FRIEND_RESPONSE_SUCCESS, GET_FRIEND_REQUESTS } from "../actionTypes/friendActionTypes";
+import { FRIEND_LOAD, FRIEND_REQUEST_FAIL, FRIEND_REQUEST_SUCCESS, FRIEND_RESPONSE_FAIL, FRIEND_RESPONSE_SUCCESS, GET_FRIEND_REQUESTS, GET_FRIENDS_LIST } from "../actionTypes/friendActionTypes";
 
 
 //! Action Creators
@@ -38,7 +38,7 @@ export const getFriendRequests = () => async (dispatch) => {
 };
 
 // Respond Friend Request (Accept or Reject)
-export const respondFriendRequest = (senderId, accept) => async (dispatch) => {
+export const respondFriendRequest = (senderId, accept, userId) => async (dispatch) => {
     dispatch({ type: FRIEND_LOAD });
     try {
         const config = {
@@ -48,7 +48,24 @@ export const respondFriendRequest = (senderId, accept) => async (dispatch) => {
         }
         const { data } = await axios.post('/api/friends/respond', { senderId, accept }, config);
         dispatch({ type: FRIEND_RESPONSE_SUCCESS, payload: data.message });
-        dispatch(getFriendRequests())
+        dispatch(getFriendRequests());
+        dispatch(getFriends(userId))
+    } catch (error) {
+        dispatch({ type: FRIEND_RESPONSE_FAIL, payload: error.response.data.message || error.message })
+    }
+};
+
+// Friends List
+export const getFriends = (userId) => async (dispatch) => {
+    dispatch({ type: FRIEND_LOAD });
+    try {
+        const config = {
+            headers: {
+                Authorization: localStorage.getItem('token')
+            }
+        }
+        const { data } = await axios.get(`/api/friends/${userId}/friends`, config);
+        dispatch({ type: GET_FRIENDS_LIST, payload: data.friendsList});
     } catch (error) {
         dispatch({ type: FRIEND_RESPONSE_FAIL, payload: error.response.data.message || error.message })
     }

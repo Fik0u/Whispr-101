@@ -72,3 +72,21 @@ exports.respondFriendRequest = async (req, res) => {
         res.status(400).json({ msg: "Couldn't respond the request" })
     }
 };
+
+// Get Friends List
+exports.getFriends = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId).populate({
+            path: "friends",
+            select: "username avatar status"
+        });
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' })
+        }
+        const friendsList = user.friends;
+        res.status(200).json({ msg: 'Friends list fetched successfully', friendsList })
+    } catch (error) {
+        res.statsu(400).json({ msg: "Couldn't find the friends list" })
+    }
+};

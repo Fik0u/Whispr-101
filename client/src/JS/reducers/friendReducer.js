@@ -1,11 +1,12 @@
 // Necessary Imports
 
-import { FRIEND_LOAD, FRIEND_REQUEST_FAIL, FRIEND_REQUEST_SUCCESS, FRIEND_RESPONSE_FAIL, FRIEND_RESPONSE_SUCCESS, GET_FRIEND_REQUESTS } from "../actionTypes/friendActionTypes";
+import { FRIEND_LOAD, FRIEND_REQUEST_FAIL, FRIEND_REQUEST_SUCCESS, FRIEND_RESPONSE_FAIL, FRIEND_RESPONSE_SUCCESS, GET_FRIEND_REQUESTS, GET_FRIENDS_LIST } from "../actionTypes/friendActionTypes";
 
 const initialState = {
     isLoad: false,
     message: null,
     friendRequests: [],
+    friendsList: [],
     error: null
 };
 
@@ -22,6 +23,8 @@ const friendReducer = (state = initialState, { type, payload }) => {
         case FRIEND_RESPONSE_FAIL: return { ...state, isLoad: false, error: payload };
         
         case GET_FRIEND_REQUESTS: return { ...state, isLoad: false, friendRequests: payload };
+
+        case GET_FRIENDS_LIST: return { ...state, isLoad: false, friendsList: payload };
 
         default: return state;
     }

@@ -18,6 +18,9 @@ const NavBar = () => {
 
   const searchResults = useSelector(state => state.userReducer.users);
 
+  const friendRequests = useSelector(state => state.friendReducer.friendRequests);
+  const friendRequestCount = friendRequests.length || 0;
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -117,11 +120,14 @@ const NavBar = () => {
                     </Link>
                     <Link 
                       to="/friends"
-                      className="flex items-center px-4 py-2 hover:bg-gray-700 transition"
+                      className="flex items-center px-4 py-2 hover:bg-gray-700 transition relative"
                       onClick={() => setDropdownOpen(false)}
                     >
                       <Users className="mr-2" size={16} />
                       Friends
+                      {friendRequestCount > 0 && (
+                        <span className="ml-2 bg-red-600 text-xs px-2 py-0.5 rounded-full shadow-sm">{friendRequestCount}</span>
+                      )}
                     </Link>
                     <Link
                       to="/settings"

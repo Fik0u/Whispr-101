@@ -6,9 +6,10 @@ const FriendRequests = () => {
 
     const dispatch = useDispatch();
     const friendRequests = useSelector(state => state.friendReducer.friendRequests);
-
+    const user = useSelector(state => state.authReducer.user);
+    
     const handleRespond = (senderId, accept) => {
-        dispatch(respondFriendRequest(senderId, accept))
+        dispatch(respondFriendRequest(senderId, accept, user._id))
     };
 
   return (

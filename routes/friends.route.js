@@ -1,6 +1,6 @@
 const express = require('express');
 const isAuth = require('../middleware/isAuth');
-const { sendFriendRequest, respondFriendRequest, getFriendRequests } = require('../controllers/friends.controller');
+const { sendFriendRequest, respondFriendRequest, getFriendRequests, getFriends } = require('../controllers/friends.controller');
 
 const router = express.Router();
 
@@ -17,6 +17,9 @@ router.get('/requests', isAuth, getFriendRequests);
 
 // Respond Request
 router.post('/respond', isAuth, respondFriendRequest);
+
+// Friends List Route
+router.get('/:userId/friends', isAuth, getFriends);
 
 
 module.exports = router;
