@@ -33,6 +33,19 @@ exports.sendFriendRequest = async (req, res) => {
     }
 };
 
+// Get Friend Requests List
+exports.getFriendRequests = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).populate({
+            path: "friendRequests",
+            select: "username avatar"
+        });
+        res.status(200).json({ msg: "Friend requests list fetched successfully", friendRequests: user.friendRequests })
+    } catch (error) {
+        res.status(400).json({ msg: "Couldn't get the requests list", error })
+    }
+};
+
 // Respond Friend Request (Accept or Reject)
 exports.respondFriendRequest = async (req, res) => {
     try {

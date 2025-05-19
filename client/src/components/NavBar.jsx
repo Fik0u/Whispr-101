@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../JS/actions/authAction";
 import { searchUsers } from "../JS/actions/userAction";
-import { ChevronDown, LogOut, User, Settings } from "lucide-react";
+import { ChevronDown, LogOut, User, Settings, Users } from "lucide-react";
 import { sendFriendRequest } from "../JS/actions/friendAction";
 
 const NavBar = () => {
@@ -114,6 +114,14 @@ const NavBar = () => {
                     >
                       <User className="mr-2" size={16} />
                       My Profile
+                    </Link>
+                    <Link 
+                      to="/friends"
+                      className="flex items-center px-4 py-2 hover:bg-gray-700 transition"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <Users className="mr-2" size={16} />
+                      Friends
                     </Link>
                     <Link
                       to="/settings"

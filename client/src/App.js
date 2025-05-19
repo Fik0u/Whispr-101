@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import NavBar from './components/NavBar';
 import Chats from './pages/Chats';
 import Groups from './pages/Groups';
+import Friends from './pages/Friends';
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
         {isAuth && (
           <>
         <Route path = '/profile' element = {<Profile />} />
+        <Route path = '/friends' element = {<Friends />} />
         <Route path = '/chats' element = {<Chats />} />
         <Route path = '/groups' element = {<Groups />} />
           </>
