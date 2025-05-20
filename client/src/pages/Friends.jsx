@@ -20,7 +20,7 @@ const Friends = () => {
         <FriendRequests />
 
         <h1>Friends List</h1>
-        <FriendsList userId = {user._id} />
+        <FriendsList userId = {user._id} displayType= 'cards' />
     </div>
   )
 }
