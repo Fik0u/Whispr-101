@@ -1,8 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { MessageSquare, Lock, Users, Zap } from "lucide-react";
 
 const Home = () => {
+
+  const navigate = useNavigate();
+  const isAuth = useSelector(state => state.authReducer.isAuth);
+
+
   return (
     <div className='min-h-screen bg-gradient-to-b from-gray-900 to gray-950 text-white'>
       <section className='text-center py-24 px-6'>
@@ -18,8 +25,14 @@ const Home = () => {
           Join real-time conversations, privately or in groups. No noise. Just you and others.
         </p>
         <div className='flex justify-center gap-4'>
-          <button className="text-lg px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md">Sign Up</button>
-          <button className="text-lg px-6 py-3 border border-white text-white rounded-md hover:bg-white hover:text-gray-900 transition">Log In</button>
+          {!isAuth ? (
+            <>
+          <button onClick={() => navigate('/register')} className="text-lg px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md">Sign Up</button>
+          <button onClick={() => navigate('/login')} className="text-lg px-6 py-3 border border-white text-white rounded-md hover:bg-white hover:text-gray-900 transition">Log In</button>
+            </>
+          ) : (
+            <button onClick={() => navigate('/chats')} className='text-lg px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold'>Start Chatting</button>
+          )}
         </div>
       </section>
 
