@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../JS/actions/authAction";
@@ -20,6 +20,25 @@ const NavBar = () => {
 
   const friendRequests = useSelector(state => state.friendReducer.friendRequests);
   const friendRequestCount = friendRequests.length || 0;
+
+  const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false)
+      }
+      if (searchRef.current && ! searchRef.current.contains(event.target)) {
+        setShowResults(false)
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, []);
+
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -77,7 +96,9 @@ const NavBar = () => {
               <Link to="/groups" className="hover:text-indigo-300 transition">
                 Groups
               </Link>
-              <div className="relative">
+              
+              {/* Search Bar  */}
+              <div className="relative" ref={searchRef}>
                 <input type="text" value={search} onChange={handleSearchChange} placeholder="Search a user" className="px-3 py-1 rounded-md bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 {showResults && (
                   <div className="absolute bg-gray-900 border border-gray-700 mt-2 rounded-md w-64 max-h-60 overflow-y-auto z-50">
@@ -99,7 +120,7 @@ const NavBar = () => {
               </div>
 
               {/* Dropdown */}
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-1 hover:text-indigo-300 transition"
