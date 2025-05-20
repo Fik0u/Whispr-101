@@ -23,10 +23,10 @@ const FriendRequests = () => {
                         <span>{reqUser.username}</span>
                     </div>
                     <div className='flex gap-2'>
-                        <button onClick={() => handleRespond(reqUser._id, "accepted")} className='px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-sm'>
+                        <button onClick={() => handleRespond(reqUser._id, true)} className='px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-sm'>
                             Accept
                         </button>
-                        <button onClick={() => handleRespond(reqUser._id, "declined")} className='px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-sm'>
+                        <button onClick={() => handleRespond(reqUser._id, false)} className='px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-sm'>
                             Decline
                         </button>
                     </div>

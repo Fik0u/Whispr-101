@@ -5,38 +5,48 @@ import { logout } from "../JS/actions/authAction";
 import { searchUsers } from "../JS/actions/userAction";
 import { ChevronDown, LogOut, User, Settings, Users } from "lucide-react";
 import { sendFriendRequest } from "../JS/actions/friendAction";
+import { currentUser } from "../JS/actions/authAction";
 
 const NavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const isAuth = useSelector((state) => state.authReducer.isAuth);
   const user = useSelector((state) => state.authReducer.user);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchResults = useSelector((state) => state.userReducer.users);
+  const friendRequests = useSelector((state) => state.friendReducer.friendRequests);
 
-  const [search, setSearch] = useState('');
-  const [showResults, setShowResults] = useState(false);
-
-  const searchResults = useSelector(state => state.userReducer.users);
-
-  const friendRequests = useSelector(state => state.friendReducer.friendRequests);
   const friendRequestCount = friendRequests.length || 0;
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [locallySent, setLocallySent] = useState([]); 
 
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
-  
+
+
+  useEffect(() => {
+    if (user.sentRequests) {
+      setLocallySent(user.sentRequests);
+    }
+  }, [user.sentRequests]);
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false)
+        setDropdownOpen(false);
       }
-      if (searchRef.current && ! searchRef.current.contains(event.target)) {
-        setShowResults(false)
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
 
@@ -51,6 +61,13 @@ const NavBar = () => {
     }
   };
 
+
+  const handleSendRequest = async (id) => {
+    await dispatch(sendFriendRequest(id));
+    await dispatch(currentUser()); 
+  };
+
+
   const handleLogout = () => {
     dispatch(logout(navigate));
     setDropdownOpen(false);
@@ -60,10 +77,7 @@ const NavBar = () => {
     <nav className="bg-gray-900 text-white px-6 py-4 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link
-          to="/"
-          className="text-2xl font-bold text-indigo-400 hover:text-indigo-500 transition"
-        >
+        <Link to="/" className="text-2xl font-bold text-indigo-400 hover:text-indigo-500 transition">
           Whispr 💬
         </Link>
 
@@ -96,25 +110,62 @@ const NavBar = () => {
               <Link to="/groups" className="hover:text-indigo-300 transition">
                 Groups
               </Link>
-              
-              {/* Search Bar  */}
+
+              {/* Search Bar */}
               <div className="relative" ref={searchRef}>
-                <input type="text" value={search} onChange={handleSearchChange} placeholder="Search a user" className="px-3 py-1 rounded-md bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={handleSearchChange}
+                  placeholder="Search a user"
+                  className="px-3 py-1 rounded-md bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
                 {showResults && (
                   <div className="absolute bg-gray-900 border border-gray-700 mt-2 rounded-md w-64 max-h-60 overflow-y-auto z-50">
+                    {searchResults.map((u) => {
+                      if (u._id === user._id) return null;
 
-                    {searchResults.map(u => {
-                      const alreadySent = user.sentRequests.includes(u._id)
-                    return (
-                      <div key={u._id} className="flex items-center justify-between px-3 py-2 hover:bg-gray-800 transition">
+                      const alreadySent = locallySent.includes(u._id);
+                      const isFriend = user.friends.includes(u._id);
+                      const requestReceived = user.friendRequests.includes(u._id);
+
+                      return (
+                        <div
+                          key={u._id}
+                          className="flex items-center justify-between px-3 py-2 hover:bg-gray-800 transition"
+                        >
                           <div className="flex items-center gap-2">
                             <img src={u.avatar} alt={u.username} className="w-8 h-8 rounded-full" />
                             <span>{u.username}</span>
                           </div>
-                          <button className={`text-sm px-2 py-1 roundes ${alreadySent ? "text-gray-500 cursor-not-allowed" : "text-indigo-400 hover:text-indigo-500"}`} 
-                          onClick={() => !alreadySent && dispatch(sendFriendRequest(u._id))} disabled={alreadySent}>{alreadySent ? "Pending" : "Add"}</button>
-                      </div>
-                    )})}
+                          <div>
+                            {isFriend ? (
+                              <button
+                                className="text-sm px-2 py-1 rounded text-green-400 hover:text-green-500"
+                                onClick={() => navigate(`/chat/${u._id}`)}
+                              >
+                                Chat
+                              </button>
+                            ) : requestReceived ? (
+                              <button className="text-sm px-2 py-1 rounded text-yellow-400 cursor-not-allowed" disabled>
+                                Requested You
+                              </button>
+                            ) : alreadySent ? (
+                              <button className="text-sm px-2 py-1 rounded text-gray-500 cursor-not-allowed" disabled>
+                                Pending
+                              </button>
+                            ) : (
+                              <button
+                                className="text-sm px-2 py-1 rounded text-indigo-400 hover:text-indigo-500"
+                                onClick={() => handleSendRequest(u._id)}
+                              >
+                                Add
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -139,7 +190,7 @@ const NavBar = () => {
                       <User className="mr-2" size={16} />
                       My Profile
                     </Link>
-                    <Link 
+                    <Link
                       to="/friends"
                       className="flex items-center px-4 py-2 hover:bg-gray-700 transition relative"
                       onClick={() => setDropdownOpen(false)}
@@ -147,7 +198,9 @@ const NavBar = () => {
                       <Users className="mr-2" size={16} />
                       Friends
                       {friendRequestCount > 0 && (
-                        <span className="ml-2 bg-red-600 text-xs px-2 py-0.5 rounded-full shadow-sm">{friendRequestCount}</span>
+                        <span className="ml-2 bg-red-600 text-xs px-2 py-0.5 rounded-full shadow-sm">
+                          {friendRequestCount}
+                        </span>
                       )}
                     </Link>
                     <Link

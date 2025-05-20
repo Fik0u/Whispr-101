@@ -46,6 +46,24 @@ exports.getFriendRequests = async (req, res) => {
     }
 };
 
+// Get Sent Requests List
+exports.getSentRequests = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId).populate({
+            path: 'sentRequests',
+            select: 'username avatar status'
+        });
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' })
+        }
+        res.status(200).json({ msg: 'Sent requests fetched successfully', sentRequests: user.sentRequests })
+    } catch (error) {
+        console.error(error)
+        res.status(400).json({ msg: "Error fetching sent requests", error })
+    }
+};
+
 // Respond Friend Request (Accept or Reject)
 exports.respondFriendRequest = async (req, res) => {
     try {
@@ -62,8 +80,8 @@ exports.respondFriendRequest = async (req, res) => {
         user.friendRequests = user.friendRequests.filter(id => id.toString() !== senderId);
         sender.sentRequests = sender.sentRequests.filter(id => id.toString() !== userId);
         if (accept) {
-            user.friends.push(senderId);
-            sender.friends.push(userId);
+            if (!user.friends.includes(senderId)) user.friends.push(senderId);
+            if (!sender.friends.includes(userId)) sender.friends.push(userId);
         }
         await user.save();
         await sender.save();
