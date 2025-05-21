@@ -49,7 +49,8 @@ export const removeUser = (groupId, userId) => async (dispatch) => {
     dispatch({ type: LOAD_GROUP });
     try {
         const { data } = await axios.post(`/api/groups/${groupId}/removeMember`, { userId });
-        dispatch({ type: REMOVE_USER, payload: data.group })
+        dispatch({ type: REMOVE_USER, payload: data.group });
+        return { payload: data.group }
     } catch (error) {
         dispatch({ type: FAIL_GROUP, payload: error.message })
     }

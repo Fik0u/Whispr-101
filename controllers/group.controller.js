@@ -4,18 +4,18 @@ const Message = require('../model/Message');
 
 // Create new group
 exports.newGroup = async (req, res) => {
-    const { name, description, adminId, members } = req.body;
-    if (!name || ! adminId) {
+    const { name, description, admin, members } = req.body;
+    if (!name || ! admin) {
         return res.status(400).json({ msg: 'Name & Admin are required' })
     }
     try {
         let membersList = members || [];
-        if (!membersList.includes(adminId)) {
-            membersList.push(adminId)
+        if (!membersList.includes(admin)) {
+            membersList.push(admin)
         }
 
         const newGroup = new Group({
-            name, description, admin: adminId, members: membersList
+            name, description, admin, members: membersList
         });
 
         const savedGroup = await newGroup.save();
@@ -60,7 +60,11 @@ exports.removeMember = async (req, res) => {
         }
         group.members = group.members.filter(memberId => memberId.toString() !== userId);
         await group.save();
-        res.status(200).json({ msg: 'User removed from group successfully', group })
+        const updatedGroup = await Group.findById(groupId)
+            .populate('members', 'username')
+            .populate('admin', 'username')
+
+        res.status(200).json({ msg: 'User removed from group successfully', group: updatedGroup })
     } catch (error) {
         res.status(400).json({ msg: 'Error removing member', error })
     }
@@ -70,9 +74,11 @@ exports.removeMember = async (req, res) => {
 exports.getGroups = async (req, res) => {
     const { userId } = req.params;
     try {
-        const groups = await Group.find({ members: userId });
+        const groups = await Group.find({ members: userId }).populate('members', 'username').populate('admin', 'username');
+
         res.status(200).json({ msg: 'Groups fetched successfully', groups })
     } catch (error) {
+        console.error(error)
         res.status(400).json({ msg: 'Error getting groups', error })
     }
 };
