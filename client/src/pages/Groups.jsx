@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedGroup, clearSelectedGroup, createGroup } from '../JS/actions/groupAction';
+import { setSelectedGroup, clearSelectedGroup, createGroup, getGroups } from '../JS/actions/groupAction';
 import GroupChat from '../components/GroupChat';
 import FriendsList from '../components/FriendsList';
 
@@ -36,6 +36,11 @@ const Groups = () => {
       setSelectedMembers([...selectedMembers, friendId])
     }
   };
+
+  useEffect(() => {
+    const userId = user._id
+    dispatch(getGroups(userId))
+  }, [dispatch, user._id]);
 
 
   return (
