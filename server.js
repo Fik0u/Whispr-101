@@ -38,8 +38,6 @@ app.use('/api/friends', require('./routes/friends.route'))
 
 app.use('/api/messages', require('./routes/message.route'));
 
-app.use('/api/conversations', require('./routes/conversation.routes'));
-
 app.use('/api/groups', require('./routes/group.routes'));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
