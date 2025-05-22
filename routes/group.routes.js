@@ -1,5 +1,7 @@
 const express = require('express');
-const { newGroup, addMember, getGroups, sendGroupMessage, getGroupMessages, removeMember } = require('../controllers/group.controller');
+const { newGroup, addMember, getGroups, sendGroupMessage, getGroupMessages, removeMember, deleteGroup } = require('../controllers/group.controller');
+const isAuth = require('../middleware/isAuth');
+
 
 const router = express.Router();
 
@@ -26,6 +28,9 @@ router.post('/:groupId/messages', sendGroupMessage);
 
 // Get Group Messages Route
 router.get('/:groupId/messages', getGroupMessages);
+
+// Delete Group Route
+router.delete('/:id', isAuth, deleteGroup)
 
 
 module.exports = router;

@@ -120,3 +120,24 @@ exports.getGroupMessages = async (req, res) => {
         res.status(400).json({ msg: "Couldn't get group messages", error })
     }
 };
+
+// Delete Group
+exports.deleteGroup = async (req, res) => {
+    try {
+        const groupId = req.params.id;
+        const userId = req.user._id;
+
+        const group = await Group.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ msg: 'Group not found' })
+        }
+        if (group.admin.toString() !== userId.toString()) {
+            return res.status(403).json({msg: 'Only admin is allowed to do this !' })
+        }
+        await Group.findByIdAndDelete(groupId);
+        res.status(200).json({ msg: 'Group successfully deleted' })
+    } catch (error) {
+        res.status(400).json({ msg: "Couldn't delete the group"})
+    }
+};
