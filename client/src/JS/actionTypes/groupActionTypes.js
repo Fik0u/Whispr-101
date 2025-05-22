@@ -8,4 +8,5 @@ export const GET_GROUP_MESSAGES = 'GET_GROUP_MESSAGES'; // Get the group message
 export const SEND_MESSAGE = 'SEND_MESSAGE'; // Send a group message
 export const SET_SELECTED_GROUP = 'SET_SELECTED_GROUP'; // Select a group
 export const CLEAR_SELECTED_GROUP = 'CLEAR_SELECTED_GROUP'; // Unselect a group
+export const DELETE_GROUP = 'DELETE_GROUP' // Delete a group (only if admin)
 export const FAIL_GROUP = 'FAIL_GROUP'; // In any case of error or fail

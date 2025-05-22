@@ -1,6 +1,6 @@
 // Necessary Imports
 import axios from 'axios';
-import { ADD_USER, CLEAR_SELECTED_GROUP, CREATE_GROUP, FAIL_GROUP, GET_GROUP_MESSAGES, GET_GROUPS, LOAD_GROUP, REMOVE_USER, SEND_MESSAGE, SET_SELECTED_GROUP } from "../actionTypes/groupActionTypes";
+import { ADD_USER, CLEAR_SELECTED_GROUP, CREATE_GROUP, DELETE_GROUP, FAIL_GROUP, GET_GROUP_MESSAGES, GET_GROUPS, LOAD_GROUP, REMOVE_USER, SEND_MESSAGE, SET_SELECTED_GROUP } from "../actionTypes/groupActionTypes";
 
 
 //! Actions creators
@@ -83,6 +83,23 @@ export const sendMessage = (groupId, senderId, text) => async (dispatch) => {
     }
 };
 
+// Unselect a group
 export const clearSelectedGroup = () => ({
     type: CLEAR_SELECTED_GROUP
 });
+
+// Delete a group
+export const deleteGroup = (groupId) => async (dispatch) => {
+    dispatch({ type: LOAD_GROUP });
+    try {
+        const config = {
+            headers: {
+                Authorization: localStorage.getItem('token')
+            }
+        }
+        await axios.delete(`/api/groups/${groupId}`, config);
+        dispatch({ type: DELETE_GROUP, payload: groupId })
+    } catch (error) {
+        dispatch({ type: FAIL_GROUP, payload: error.message })
+    }
+};

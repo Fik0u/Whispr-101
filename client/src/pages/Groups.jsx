@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedGroup, clearSelectedGroup, createGroup, getGroups, removeUser } from '../JS/actions/groupAction';
+import { setSelectedGroup, clearSelectedGroup, createGroup, getGroups, removeUser, deleteGroup } from '../JS/actions/groupAction';
 import GroupChat from '../components/GroupChat';
 import FriendsList from '../components/FriendsList';
+import { Trash2 } from 'lucide-react';
+
 
 const Groups = () => {
   const dispatch = useDispatch();
@@ -47,9 +49,18 @@ const Groups = () => {
     }
   };
 
+  const handleDeleteGroup = async (groupId) => {
+    if (window.confirm('Are you sure you want to delete this group ?')) {
+      await dispatch(deleteGroup(groupId));
+      dispatch(clearSelectedGroup());
+      dispatch(getGroups(user._id));
+    }
+  };
+
   useEffect(() => {
     dispatch(getGroups(user._id));
   }, [dispatch, user._id]);
+
 
   return (
     <div className="flex h-screen bg-zinc-900 text-white">
@@ -71,11 +82,17 @@ const Groups = () => {
         {groups.map(group => (
           <div
             key={group._id}
-            onClick={() => dispatch(setSelectedGroup(group))}
-            className={`cursor-pointer p-3 rounded-lg mb-2 transition 
+            className={`flex justify-between items-center cursor-pointer p-3 rounded-lg mb-2 transition 
               ${selectedGroup?._id === group._id ? 'bg-blue-600' : 'hover:bg-zinc-700'}`}
           >
+            <span onClick={() => dispatch(setSelectedGroup(group))} className='flex-1' >
             {group.name}
+            </span>
+            {group.admin._id === user._id && (
+              <button onClick={() => handleDeleteGroup(group._id)} className='text-red-500 hover:text-red-700'>
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
         ))}
 

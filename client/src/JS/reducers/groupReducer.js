@@ -1,6 +1,6 @@
 // Necessary Imports 
 
-import { ADD_USER, CLEAR_SELECTED_GROUP, CREATE_GROUP, FAIL_GROUP, GET_GROUP_MESSAGES, GET_GROUPS, LOAD_GROUP, REMOVE_USER, SEND_MESSAGE, SET_SELECTED_GROUP } from "../actionTypes/groupActionTypes";
+import { ADD_USER, CLEAR_SELECTED_GROUP, CREATE_GROUP, DELETE_GROUP, FAIL_GROUP, GET_GROUP_MESSAGES, GET_GROUPS, LOAD_GROUP, REMOVE_USER, SEND_MESSAGE, SET_SELECTED_GROUP } from "../actionTypes/groupActionTypes";
 
 
 const initialState = {
@@ -33,6 +33,8 @@ const groupReducer = (state = initialState, { type, payload }) => {
             return { ...state, isLoad: false, groupMessages: { ...state.groupMessages, [groupId]: [...(state.groupMessages[groupId] || []), payload] } };
 
         case CLEAR_SELECTED_GROUP: return { ...state, selectedGroup: null };
+
+        case DELETE_GROUP: return { ...state, isLoad: false, groups: state.groups.filter(group => group._id !== payload), selectedGroup: state.selectedGroup._id === payload ? null : state.selectedGroup };
 
         case FAIL_GROUP: return { ...state, isLoad: false, error: payload };
     
