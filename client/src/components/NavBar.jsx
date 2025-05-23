@@ -142,9 +142,9 @@ const NavBar = () => {
                             {isFriend ? (
                               <button
                                 className="text-sm px-2 py-1 rounded text-green-400 hover:text-green-500"
-                                onClick={() => navigate(`/chat/${u._id}`)}
+                                onClick={() => navigate('/chats')}
                               >
-                                Chat
+                                Whispr
                               </button>
                             ) : requestReceived ? (
                               <button className="text-sm px-2 py-1 rounded text-yellow-400 cursor-not-allowed" disabled>

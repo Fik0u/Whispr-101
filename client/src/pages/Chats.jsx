@@ -6,7 +6,6 @@ import FriendsList from '../components/FriendsList';
 
 const Chats = () => {
   const [message, setMessage] = useState('');
-  // const [onlineUsers, setOnlineUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
 
   const currentUser = useSelector(state => state.authReducer.user);
@@ -22,10 +21,6 @@ const Chats = () => {
         username: currentUser.username,
       });
     }
-
-    // socket.on('getUsers', (users) => {
-    //   setOnlineUsers(users);
-    // });
 
     socket.on('getMessage', (data) => {
       if (!data.sender || !data.sender._id) {

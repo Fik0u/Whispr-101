@@ -12,6 +12,8 @@ import NavBar from './components/NavBar';
 import Chats from './pages/Chats';
 import Groups from './pages/Groups';
 import Friends from './pages/Friends';
+import About from './pages/About';
+import Features from './pages/Features';
 
 function App() {
 
@@ -30,6 +32,8 @@ function App() {
 
       <Routes>
         <Route path = '/' element = {<Home />} />
+        <Route path = '/about' element = {<About />} />
+        <Route path = '/features' element = {<Features />} />
         <Route path = '/register' element = {<Register />} />
         <Route path = '/login' element = {<Login />} />
         
