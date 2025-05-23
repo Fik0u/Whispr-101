@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedGroup, clearSelectedGroup, createGroup, getGroups, removeUser, deleteGroup } from '../JS/actions/groupAction';
 import GroupChat from '../components/GroupChat';
 import FriendsList from '../components/FriendsList';
+import AddMembers from '../components/AddMembers';
 import { Trash2 } from 'lucide-react';
 
 
@@ -99,13 +100,18 @@ const Groups = () => {
         {/* Members in Sidebar */}
         {selectedGroup && (
           <div className="mt-4">
-            <h4 className="text-lg font-bold text-zinc-400 mb-2">Group Members</h4>
-            <ul className="space-y-2">
-              {selectedGroup.members.map(member => (
-                <li
+            <div className='flex items-center justify-between mb-2'>
+              <h4 className="text-lg font-bold text-zinc-400 mb-2">Group Members</h4>
+              {selectedGroup.admin._id === user._id && (
+                <AddMembers groupId={selectedGroup._id} userId={user._id} />
+              )}
+              </div>
+              <ul className="space-y-2">
+                {selectedGroup.members.map(member => (
+                  <li
                   key={member._id}
                   className="flex justify-between items-center bg-zinc-800 p-2 rounded"
-                >
+                  >
                   
                   <span>
                     {member.username}
