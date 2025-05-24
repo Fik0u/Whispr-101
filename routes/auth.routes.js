@@ -24,7 +24,7 @@ router.get('/current', isAuth, (req, res) => {
 });
 
 //Update Profile Route
-router.put('/update', isAuth, upload.single('picture'), updateProfile);
+router.put('/update', isAuth, upload.single('avatar'), updateProfile);
 
 
 module.exports = router;

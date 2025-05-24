@@ -59,6 +59,7 @@ export const updateProfile = (formData) => async (dispatch) => {
             headers: { 'Content-Type': 'multipart/form-data',
                 Authorization: localStorage.getItem('token') }
         });
+        console.log(data)
         dispatch({ type: UPDATE_PROFILE, payload: data.user});
         localStorage.setItem('user', JSON.stringify(data.user))
     } catch (error) {
